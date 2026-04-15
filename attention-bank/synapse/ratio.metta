@@ -178,9 +178,43 @@
         ($allAtoms (getAllAtomsWithBins))
         ($totalAtoms (size-atom $allAtoms))
         ($totalSti (getTotalSti $allAtoms 0))
-
         ($probabilities (map-atom $allAtoms $atom)(/ (getsti $atom) $totalSti))
-    
-  ))
+        ($entropyTerms (map-atom $probabiliries $p (entropyTerm $p)))
+        ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
+        ($entropy (* -1 $sumTerms))
+        ($maxEntropy (log2-math $totalAtoms))
+      )
+
+        (if (> $maxEntropy 0)
+            (/ $entropy $maxEntropy)
+            0.0
+        )
+  )
 )
+
+;; cognitive maintainance
+(= (cognitiveMaintainanceHelper () $sum $count)
+     (if (> $count 0) (/ $sum $count) 0.0)
+)
+
+(= (cognitiveMaintainanceHelper (cons $single ()) $sum $count)
+     (if (> $count 0) (/ $sum $count) 0.0)
+)
+
+(= (cognitiveMaintainanceHelper (cons $state1 (cons $state2 $tail)) $sum $count)
+     (let*
+          (
+             ($retenttion (contextRetention $state1 $state2))
+             ($newSum (+ $sum $retention))
+             ($newCount (+ $count 1))
+          )
+     )
+     (
+       (cognitiveMaintainanceHelper (cons state2 $tail) $newSum $newCount)
+     )
+)
+(= (cognitiveMaintainance $trajectory)
+     (cognitiveMaintainanceHelper $trajectory 0.0 0)
+)
+
 
