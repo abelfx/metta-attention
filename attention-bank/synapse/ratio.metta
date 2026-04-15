@@ -132,3 +132,89 @@
         (/ $variance $maxVariance)
     )
 )
+
+(= (getLinkTarget (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $tgt)
+
+(= (isInternalLink $link $afAtoms)
+  (let*
+     (
+       ($tgt (getLinkTarget $link))
+       ;; wrap target in tuple to use intersection-atom against the afAtoms
+       ($overlap (size-atom (intersection-atom $afAtoms (cons $tgt ()))))
+     )
+     (if (> $overlap 0) 1 0)
+  )
+)
+
+(= (connectionRatio)
+  (let*
+      (
+        ($afAtoms (getAfAtoms))
+        ($allAfLinks (getHebLinks $afAtoms ()))
+        ($totalLinks (size-atom $allAfLinks))
+
+        ;; map over links to get the internal ones
+        ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms))
+        ($internalLinks (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+      )
+        (
+        if (> $totalLinks 0)
+          (/ $internalLinks $totalLinks)
+          0.0
+        )
+  )
+)
+
+(= (entropyTerm $p)
+     (if (> $p 0)
+       (* $p (log2-math $p))
+       0.0
+     )
+)
+
+(= (preallocationSpace)
+  (let* 
+     (
+        ($allAtoms (getAllAtomsWithBins))
+        ($totalAtoms (size-atom $allAtoms))
+        ($totalSti (getTotalSti $allAtoms 0))
+        ($probabilities (map-atom $allAtoms $atom)(/ (getsti $atom) $totalSti))
+        ($entropyTerms (map-atom $probabiliries $p (entropyTerm $p)))
+        ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
+        ($entropy (* -1 $sumTerms))
+        ($maxEntropy (log2-math $totalAtoms))
+      )
+
+        (if (> $maxEntropy 0)
+            (/ $entropy $maxEntropy)
+            0.0
+        )
+  )
+)
+
+;; cognitive maintainance
+(= (cognitiveMaintainanceHelper () $sum $count)
+     (if (> $count 0) (/ $sum $count) 0.0)
+)
+
+(= (cognitiveMaintainanceHelper (cons $single ()) $sum $count)
+     (if (> $count 0) (/ $sum $count) 0.0)
+)
+
+(= (cognitiveMaintainanceHelper (cons $state1 (cons $state2 $tail)) $sum $count)
+     (let*
+          (
+             ($retenttion (contextRetention $state1 $state2))
+             ($newSum (+ $sum $retention))
+             ($newCount (+ $count 1))
+          )
+     )
+     (
+       (cognitiveMaintainanceHelper (cons state2 $tail) $newSum $newCount)
+     )
+)
+(= (cognitiveMaintainance $trajectory)
+     (cognitiveMaintainanceHelper $trajectory 0.0 0)
+)
+
+
