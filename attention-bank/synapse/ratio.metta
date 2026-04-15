@@ -132,3 +132,55 @@
         (/ $variance $maxVariance)
     )
 )
+
+(= (getLinkTarget (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $tgt)
+
+(= (isInternalLink $link $afAtoms)
+  (let*
+     (
+       ($tgt (getLinkTarget $link))
+       ;; wrap target in tuple to use intersection-atom against the afAtoms
+       ($overlap (size-atom (intersection-atom $afAtoms (cons $tgt ()))))
+     )
+     (if (> $overlap 0) 1 0)
+  )
+)
+
+(= (connectionRatio)
+  (let*
+      (
+        ($afAtoms (getAfAtoms))
+        ($allAfLinks (getHebLinks $afAtoms ()))
+        ($totalLinks (size-atom $allAfLinks))
+
+        ;; map over links to get the internal ones
+        ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms))
+        ($internalLinks (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+      )
+        (
+        if (> $totalLinks 0)
+          (/ $internalLinks $totalLinks)
+          0.0
+        )
+  )
+)
+
+(= (entropyTerm $p)
+     (if (> $p 0)
+       (* $p (log2-math $p))
+       0.0
+     )
+)
+
+(= (preallocationSpace)
+  (let* 
+     (
+        ($allAtoms (getAllAtomsWithBins))
+        ($totalAtoms (size-atom $allAtoms))
+        ($totalSti (getTotalSti $allAtoms 0))
+
+        ($probabilities (map-atom $allAtoms $atom)(/ (getsti $atom) $totalSti))
+    
+  ))
+)
+
