@@ -305,6 +305,63 @@
     )
 )
 
+;;;; Aggregate metrics score
+;; snapshot & metric extractors
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (getMetricValue (Metric $name $val))
+    $val
+)
+
+;; list processing helpers
+(= (sumMetrics $list)
+     (if (== $list ())
+          0.0
+          (let*
+               (
+                    ($head (car-atom $list))
+                    ($tail (cdr-atom $list))
+               )
+               (+ (getMetricValue $head) (sumMetrics $tail))
+          )
+     )
+)
+
+(= (countMetrics $list)
+     (if (== $list ())
+          0
+          (let $tail (cdr-atom $list)
+               (+ 1 (countMetrics $tail))
+          )
+     )
+)
+
+(= (averageMetricScore $metric-list)
+    (let*
+        (
+            ($total (sumMetrics $metric-list))
+            ($count (countMetrics $metric-list))
+        )
+        (if (> $count 0)
+            (/ $total $count)
+            0.0
+        )
+    )
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
+        )
+        (- $currScore $baseScore)
+    )
+)
 
 
 (= (correlation)
