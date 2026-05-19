@@ -263,6 +263,50 @@
     )
 )
 
+;; resource cost
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
+
+(= (totalResourceCost)
+    (let* ( 
+            ($afRatio (afResourceUsage))
+            ($stiRatio (stiConcentration))
+            ($densityRatio (linkDensity))
+
+            ($cost-af (* $afRatio (weight-afRatio)))
+            ($cost-sti (* $stiRatio (weight-stiRatio)))
+            ($cost-link (* $densityRatio (weight-densityRatio)))
+
+            ($total-cost (+ (+ $cost-af $cost-sti) $cost-link))
+        ) 
+        
+        $total-cost
+    )
+)
+
+;; measure all write_metrics_wrapper
+
+(= (measureAllMetrics)
+     (let* (
+            ($coherence (moduleInternalCoherence))
+            ($synergy (pearsonCorrelation)) ;; change by cognitive synergy
+            ($modulation (selectionModulation))
+            ($intExt (connectionRatio))
+            ($prealloc (preallocationSpace))  
+        )
+        (
+            (Metric "attention-coherence"  $coherence)
+            (Metric "cognitive-synergy"    $synergy)
+            (Metric "selective-modulation" $modulation)
+            (Metric "int-ext-ratio"        $int-ext)
+            (Metric "preallocation-space"  $prealloc)
+        )
+    )
+)
+
+
+
 (= (correlation)
     (let*
         (
