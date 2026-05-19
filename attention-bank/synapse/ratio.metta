@@ -95,6 +95,15 @@
     (py-call (community_detector.get_dynamic_modules $state $afLinks))
 )
 
+;; temporal padding
+(= (generate-zeros $count)
+     (if (<= $count 0)
+          ()
+          (cons-atom 0.0 (generate-zeros (- $count 1)))
+     )
+)
+
+
 (= (getStiSeries $atom)
     (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $res ())
@@ -104,14 +113,17 @@
     )
 )
 
-(= (updateAtomHistory $atom $newSti)
+(= (updateAtomHistory $atom $newSti $currentSnapshot)
     (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $oldHist ())
-            (add-atom &self (StiHistory $atom ($newSti)))
+
+            (let $paddedHistory (cons-atom $newSti (generate-zeros (- $currentSnapshot 1)))
+               (add-atom &self (StiHistory $atom $paddedHistory))
+            )
 
             (let $historyTuple (car-atom $oldHist)
                 (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
+                    (let $rem_atom (remove-atom &self (StiHistory $atom $historyTuple))
                         (add-atom &self (StiHistory $atom $newHistory))
                     )
                 )
@@ -407,6 +419,9 @@
         (
             ($afLinks (getAllHebLinks))
             ($modules (identifyModules $state $afLinks))
+            ;($d_dummy (println! (modules $modules)))
+            ;($space_dummy (prinln! ()))
+            ;($d_dummy2 (println! (hebbianlinks $afLinks)))
             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
 

@@ -47,10 +47,10 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 90000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
-!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
-!(updateAttentionParam TOPK 0.8)
-!(updateAttentionParam AFRentFrequency 2.0)
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.25)
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.75)
+!(updateAttentionParam TOPK 0.4)
+!(updateAttentionParam AFRentFrequency 0.5)
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
@@ -101,14 +101,24 @@
                             (getAfAtoms)
                             (add-atom &afsnap (currState $nextaf))
                         )
-                        
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
+
+                        (let $currentSnapShot
+                            (if (== (% $counter (batch)) 0)
+                                (/ $counter (batch))
+                                (+ (/ (- $counter (% $counter (batch))) (batch)) 1)
+
+                            )
+                            
+                            (map-atom (getAfAtoms) $atom 
+                                (let $res (collapse (getSti $atom))
+                                    (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                                        (updateAtomHistory $atom $sti $currentSnapShot)
+                                    )
                                 )
                             )
                         )
+                        
+                       
 
                         (logCurrStateMetrics $counter)
                     )
@@ -123,5 +133,5 @@
     )
 )
 
-!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+!(insectPoisonReadExp (match &insect (insectSent $x) $x) 1)
 
