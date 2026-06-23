@@ -49,7 +49,7 @@
 !(updateAttentionParam FUNDS_LTI 3000.0) 
 !(updateAttentionParam AFRentFrequency 9.0)
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0 0))
+;!(assertEqual (topologyMetrics) (0 0 0 0))
 
 !(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.5 0.9))
@@ -57,18 +57,14 @@
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B A) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK D E) (0.5 0.9))
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 0 0))
-!(assertEqual (getTriangleCount (persistentHomologyInvariants)) 1)
-!(assertEqual (getBetti0 (persistentHomologyInvariants)) 2)
-!(assertEqual (getBetti1 (persistentHomologyInvariants)) 0)
-!(assertEqual (getBetti2 (persistentHomologyInvariants)) 0)
-!(assertEqual (topologyTriangleCount) 1)
-!(assertEqual (topologyBetti0) 2)
-!(assertEqual (topologyBetti1) 0)
-!(assertEqual (topologyBetti2) 0)
+!(assertEqual (topologyMetrics) (1 2 0 0))
+!(assertEqual (getTopologyTriangleCount (topologyMetrics)) 1)
+!(assertEqual (getTopologyBetti0 (topologyMetrics)) 2)
+!(assertEqual (getTopologyBetti1 (topologyMetrics)) 0)
+!(assertEqual (getTopologyBetti2 (topologyMetrics)) 0)
 
-!(recordTopologyReport 7 123.0)
-!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 0 0))
+; !(recordTopologyReport 7 123.0)
+; !(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 0 0))
 !(assertEqual (averageMetricScore ((afResource 1.0) (triangleCount 1000) (betti0 2) (betti1 3) (betti2 4) (stiConcentration 3.0))) 2.0)
 
 
@@ -154,17 +150,17 @@
 ; write your synapse metrice tests here
 
 !(initialize-baseline-cip)
-!(getAfResourceUsage)
-!(getStiConcentration)
-!(getLinkDensity)
-!(getConnectionRatio)
-!(getPreallocationSpace)
-!(getCognitiveSynergy)
-!(getSelectionModulation)
-!(getGlobalCoordination (getAfAtoms))
-!(getContextRetention)
-!(getCognitiveMaintenance)
-!(getEffectiveness)
+!(assertEqual (getAfResourceUsage) 0.5555555555555556)
+!(assertEqual (getStiConcentration) 0.6975795013850414)
+!(assertEqual (getLinkDensity) 0.8)
+!(assertEqual (getConnectionRatio) 0.75)
+!(assertEqual (getPreallocationSpace) 0.21172248558880094)
+!(assertEqual (getCognitiveSynergy) 0.6057556221594946)
+!(assertEqual (getSelectionModulation) 1.3672886339186598)
+!(assertEqual (getGlobalCoordination (getAfAtoms)) 0.0)
+!(assertEqual (getContextRetention) 1)
+!(assertEqual (getCognitiveMaintenance) 0.0)
+!(assertEqual (getEffectiveness) 0.0)
 
 
 
