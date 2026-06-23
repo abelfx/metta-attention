@@ -40,6 +40,7 @@
 
 
 ; =================== Set hyperparameters =====================
+!(py-call (logger.start_logger "attention-bank/synapse/test"))
 !(updateAttentionParam MAX_AF_SIZE 5.0)
 !(updateAttentionParam TARGET_STI 1000.0) 
 !(updateAttentionParam TARGET_LTI 1000.0) 
@@ -212,3 +213,6 @@
 
 !(getAttentionParam FUNDS_STI) ; the fund is consistent accross all agent call?? it should be due to rent collection
 
+!(assertEqual (< (abs-math (- (getAfCoherence) 0.07186400413181936)) 0.0001) True)
+!(assertEqual (getGainedEfficiency 1) 0.0)
+!(assertEqual (getRedundancyDegradation 1) 0.0)
