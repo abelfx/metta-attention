@@ -108,7 +108,7 @@ def get_spectral_coordinates_magnetic(
 
     # For very small graphs, fall back to dense (eigsh needs k < N)
     if n <= 3:
-        dense = matrix.toarray() if scipy.sparse.issparse(matrix) else np.array(matrix)
+        dense = matrix.toarray()
         weights = 0.5 * (dense + dense.T)
         theta_mat = 2 * np.pi * q * (dense - dense.T)
         hermitian = weights * np.exp(1j * theta_mat)
@@ -123,10 +123,10 @@ def get_spectral_coordinates_magnetic(
             }
         except Exception as exc:
             print(f"Dense eigendecomposition failed: {exc}")
-        return {
-            node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
-            for i, node in enumerate(nodes)
-        }
+            return {
+                node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
+                for i, node in enumerate(nodes)
+            }
 
     # Sparse path: build the magnetic Laplacian without dense arrays
     weights = (matrix + matrix.T).multiply(0.5)
